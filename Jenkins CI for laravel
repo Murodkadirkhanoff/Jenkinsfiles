@@ -1,0 +1,36 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone repository') {
+             steps {
+                git branch: 'dev', url: 'https://git_repo_url'
+            }
+        }
+
+        stage('Install dependencies') {
+            steps {
+                script {
+                    sh 'composer install --no-interaction --prefer-dist'
+                    sh 'cp .env.example .env'
+                    sh 'php artisan key:generate'
+                }
+            }
+        }
+
+
+        stage('Run tests') {
+            steps {
+                script {
+                    sh 'php artisan test'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
